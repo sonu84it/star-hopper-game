@@ -3,8 +3,10 @@ const ctx = canvas.getContext('2d');
 const scoreEl = document.getElementById('score');
 const gameOverEl = document.getElementById('gameOver');
 const restartBtn = document.getElementById('restart');
+const hintEl = document.getElementById('hint');
 
 let stars = [];
+let bgStars = [];
 let currentStar = null;
 let nextStar = null;
 let player = {x:0, y:0, size:20, state:'idle', vx:0, vy:0};
@@ -16,6 +18,9 @@ let cameraY = 0;
 let jumpProgress = 0;
 let jumpSteps = 30;
 let success = false;
+let lastPower = 0;
+const minGauge = 30;
+const maxGauge = 250;
 
 function playJumpSound(){
   const ac = new (window.AudioContext || window.webkitAudioContext)();
@@ -33,6 +38,12 @@ function playJumpSound(){
 
 function init(){
   stars = [];
+  bgStars = Array.from({length: 50}, () => ({
+    x: Math.random()*canvas.width,
+    y: Math.random()*canvas.height,
+    size: Math.random()*2 + 1,
+    tw: Math.random()*Math.PI*2
+  }));
   score = 0;
   gameOver = false;
   cameraY = 0;
@@ -43,6 +54,7 @@ function init(){
   addNextStar();
   updateScore();
   gameOverEl.style.display = 'none';
+  hintEl.textContent = 'Click or press Space to jump when power matches distance.';
   requestAnimationFrame(loop);
 }
 
@@ -52,9 +64,20 @@ function updateScore(){
 
 function addNextStar(){
   const x = Math.random() * (canvas.width - 100) + 50;
-  const y = currentStar.y - 120;
+  const y = currentStar.y - (100 + Math.random()*40);
   nextStar = {x, y, radius:15, twinkle: Math.random()*Math.PI*2};
   stars.push(nextStar);
+}
+
+function drawBg(){
+  for(const s of bgStars){
+    const t = Date.now()*0.002 + s.tw;
+    const alpha = 0.5 + Math.sin(t)*0.5;
+    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y - cameraY*0.1, s.size, 0, Math.PI*2);
+    ctx.fill();
+  }
 }
 
 function drawStar(star){
@@ -81,7 +104,8 @@ function attemptJump(){
   const dx = nextStar.x - player.x;
   const dy = nextStar.y - player.y;
   const dist = Math.hypot(dx, dy);
-  success = Math.abs(gauge - dist) < 20;
+  success = Math.abs(gauge - dist) < 30;
+  lastPower = gauge;
   const ratio = gauge / dist;
   player.startX = player.x;
   player.startY = player.y;
@@ -93,6 +117,7 @@ function attemptJump(){
 
 function updatePlayer(){
   if(player.state === 'jumping'){
+    hintEl.textContent = '';
     jumpProgress++;
     const t = jumpProgress / jumpSteps;
     player.x = player.startX + (player.destX - player.startX)*t;
@@ -117,6 +142,8 @@ function updatePlayer(){
     if(player.y - cameraY > canvas.height + 40){
       endGame();
     }
+  } else {
+    hintEl.textContent = 'Click or press Space to jump when power matches distance.';
   }
 }
 
@@ -137,23 +164,37 @@ function drawPlayer(){
 }
 
 function updateGauge(){
-  if(player.state !== 'idle') return;
-  gauge += gaugeDir*3;
-  if(gauge > 200){ gauge = 200; gaugeDir = -1; }
-  if(gauge < 30){ gauge = 30; gaugeDir = 1; }
+  if(player.state !== 'idle') {
+    return;
+  }
+  gauge += gaugeDir*2;
+  if(gauge > maxGauge){ gauge = maxGauge; gaugeDir = -1; }
+  if(gauge < minGauge){ gauge = minGauge; gaugeDir = 1; }
+  const dist = Math.hypot(nextStar.x - player.x, nextStar.y - player.y);
+  if(Math.abs(gauge - dist) < 15){
+    hintEl.textContent = 'Jump now!';
+  } else {
+    hintEl.textContent = 'Click or press Space to jump when power matches distance.';
+  }
 }
 
 function drawGauge(){
   if(player.state !== 'idle') return;
   ctx.fillStyle = '#444';
-  ctx.fillRect(20, canvas.height - 30, 200, 10);
+  ctx.fillRect(20, canvas.height - 30, maxGauge, 10);
   ctx.fillStyle = '#0f0';
   ctx.fillRect(20, canvas.height - 30, gauge, 10);
+  ctx.fillStyle = '#fff';
+  ctx.font = '12px Arial';
+  ctx.fillText(minGauge, 20, canvas.height - 35);
+  ctx.fillText(maxGauge, 20 + maxGauge - 20, canvas.height - 35);
+  ctx.fillText(`Last: ${lastPower.toFixed(0)}`, 20, canvas.height - 45);
 }
 
 function loop(){
   ctx.clearRect(0,0,canvas.width, canvas.height);
   cameraY = player.y - canvas.height/2 + 100;
+  drawBg();
   ctx.save();
   ctx.translate(0, -cameraY);
   for(const s of stars){
@@ -171,5 +212,5 @@ window.addEventListener('keydown', e => { if(e.code === 'Space') attemptJump(); 
 canvas.addEventListener('mousedown', attemptJump);
 restartBtn.addEventListener('click', init);
 
-gauge = 30;
+gauge = minGauge;
 init();
