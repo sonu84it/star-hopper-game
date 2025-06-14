@@ -38,6 +38,14 @@
       font-size: 20px;
       cursor: pointer;
     }
+    #hint {
+      position: absolute;
+      bottom: 20px;
+      width: 100%;
+      text-align: center;
+      font-size: 14px;
+      z-index: 1;
+    }
     canvas {
       display: block;
       margin: 0 auto;
@@ -52,6 +60,7 @@
   <button id="restart">Restart</button>
 </div>
 <canvas id="gameCanvas" width="400" height="600"></canvas>
+<div id="hint">Click or press Space to jump when the power gauge matches the distance.</div>
 <script src="game.js"></script>
 </body>
 </html>
