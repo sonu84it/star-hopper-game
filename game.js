@@ -223,10 +223,24 @@ function loop(){
   }
 }
 
-window.addEventListener('keydown', e => { if(e.code === 'Space') attemptJump(); });
+window.addEventListener('keydown', e => {
+  if (e.code === 'Space') {
+    e.preventDefault();
+    attemptJump();
+  }
+});
 canvas.addEventListener('mousedown', attemptJump);
-restartBtn.addEventListener('click', init);
-restartTopBtn.addEventListener('click', init);
+restartBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  init();
+  restartBtn.blur();
+});
+restartTopBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  init();
+  restartTopBtn.blur();
+});
+
 
 gauge = minGauge;
 init();
