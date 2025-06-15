@@ -3,6 +3,7 @@ const ctx = canvas.getContext('2d');
 const scoreEl = document.getElementById('score');
 const gameOverEl = document.getElementById('gameOver');
 const restartBtn = document.getElementById('restart');
+const restartTopBtn = document.getElementById('restartTop');
 const hintEl = document.getElementById('hint');
 
 let stars = [];
@@ -211,6 +212,7 @@ function loop(){
 window.addEventListener('keydown', e => { if(e.code === 'Space') attemptJump(); });
 canvas.addEventListener('mousedown', attemptJump);
 restartBtn.addEventListener('click', init);
+restartTopBtn.addEventListener('click', init);
 
 gauge = minGauge;
 init();
