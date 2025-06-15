@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Star Hopper</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: radial-gradient(#1a0033, #000);
+      font-family: Arial, Helvetica, sans-serif;
+      color: white;
+    }
+    #score {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 24px;
+      z-index: 1;
+    }
+    #gameOver {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      background: rgba(0,0,0,0.8);
+      font-size: 36px;
+      z-index: 2;
+    }
+    #gameOver button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    #hint {
+      position: absolute;
+      bottom: 20px;
+      width: 100%;
+      text-align: center;
+      font-size: 14px;
+      z-index: 1;
+    }
+    canvas {
+      display: block;
+      margin: 0 auto;
+      background: transparent;
+    }
+  </style>
+</head>
+<body>
+<div id="score">Score: 0</div>
+<button id="restartTop" style="position:absolute;top:10px;right:10px;z-index:1;">Restart</button>
+<div id="gameOver">
+  <div>You Fell!</div>
+  <button id="restart">Restart</button>
+</div>
+<canvas id="gameCanvas" width="400" height="600"></canvas>
+<div id="hint">Click or press Space to jump when the power gauge matches the distance.</div>
+<script src="game.js"></script>
+</body>
+</html>
