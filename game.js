@@ -241,6 +241,15 @@ restartTopBtn.addEventListener('click', (e) => {
   restartTopBtn.blur();
 });
 
+// prevent focused restart buttons from re-triggering when pressing Space
+function blockSpaceKey(e){
+  if(e.code === 'Space'){
+    e.preventDefault();
+  }
+}
+restartBtn.addEventListener('keydown', blockSpaceKey);
+restartTopBtn.addEventListener('keydown', blockSpaceKey);
+
 
 gauge = minGauge;
 init();
