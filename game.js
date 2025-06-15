@@ -241,5 +241,6 @@ restartTopBtn.addEventListener('click', (e) => {
   restartTopBtn.blur();
 });
 
+
 gauge = minGauge;
 init();
