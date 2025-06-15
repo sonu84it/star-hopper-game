@@ -15,6 +15,7 @@ let score = 0;
 let gauge = 0;
 let gaugeDir = 1;
 let gameOver = false;
+let animationId = null;
 let cameraY = 0;
 let jumpProgress = 0;
 let jumpSteps = 30;
@@ -38,6 +39,9 @@ function playJumpSound(){
 }
 
 function init(){
+  if(animationId !== null){
+    cancelAnimationFrame(animationId);
+  }
   stars = [];
   bgStars = Array.from({length: 50}, () => ({
     x: Math.random()*canvas.width,
@@ -48,15 +52,21 @@ function init(){
   score = 0;
   gameOver = false;
   cameraY = 0;
+  gauge = minGauge;
+  gaugeDir = 1;
+  lastPower = 0;
   currentStar = {x: canvas.width/2, y: 0, radius:15, twinkle: Math.random()*Math.PI*2};
   player.x = currentStar.x;
   player.y = currentStar.y - 25;
+  player.state = 'idle';
+  player.vx = 0;
+  player.vy = 0;
   stars.push(currentStar);
   addNextStar();
   updateScore();
   gameOverEl.style.display = 'none';
   hintEl.textContent = 'Click or press Space to jump when power matches distance.';
-  requestAnimationFrame(loop);
+  animationId = requestAnimationFrame(loop);
 }
 
 function updateScore(){
@@ -180,15 +190,17 @@ function updateGauge(){
 }
 
 function drawGauge(){
-  if(player.state !== 'idle') return;
-  ctx.fillStyle = '#444';
-  ctx.fillRect(20, canvas.height - 30, maxGauge, 10);
-  ctx.fillStyle = '#0f0';
-  ctx.fillRect(20, canvas.height - 30, gauge, 10);
-  ctx.fillStyle = '#fff';
   ctx.font = '12px Arial';
-  ctx.fillText(minGauge, 20, canvas.height - 35);
-  ctx.fillText(maxGauge, 20 + maxGauge - 20, canvas.height - 35);
+  if(player.state === 'idle'){
+    ctx.fillStyle = '#444';
+    ctx.fillRect(20, canvas.height - 30, maxGauge, 10);
+    ctx.fillStyle = '#0f0';
+    ctx.fillRect(20, canvas.height - 30, gauge, 10);
+    ctx.fillStyle = '#fff';
+    ctx.fillText(minGauge, 20, canvas.height - 35);
+    ctx.fillText(maxGauge, 20 + maxGauge - 20, canvas.height - 35);
+  }
+  ctx.fillStyle = '#fff';
   ctx.fillText(`Last: ${lastPower.toFixed(0)}`, 20, canvas.height - 45);
 }
 
@@ -206,7 +218,9 @@ function loop(){
   drawGauge();
   updateGauge();
   updatePlayer();
-  if(!gameOver) requestAnimationFrame(loop);
+  if(!gameOver) {
+    animationId = requestAnimationFrame(loop);
+  }
 }
 
 window.addEventListener('keydown', e => { if(e.code === 'Space') attemptJump(); });
